@@ -29,11 +29,12 @@ export default function HandwrittenText() {
 
     gsap.set(svg, { opacity: 0 });
 
-    // Trigger at 20% — after fog has faded in
+    // Trigger by scroll position in first section (not % of whole page), right after fog is in
+    const section = container.parentElement;
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: document.body,
-        start: "20% top",
+        trigger: section ?? document.body,
+        start: "top top-=400",
         toggleActions: "play none none reset",
         markers: false,
         id: "handwriting",
@@ -71,10 +72,10 @@ export default function HandwrittenText() {
       }, timing.overlap || 0);
     });
 
-    // Fade out when scrolling back up
+    // Fade out when scrolling back up past trigger
     const fadeOutTrigger = ScrollTrigger.create({
-      trigger: document.body,
-      start: "20% top",
+      trigger: section ?? document.body,
+      start: "top top-=400",
       onLeaveBack: () => {
         gsap.to(svg, { opacity: 0, duration: 0.3 });
       },
@@ -93,7 +94,37 @@ export default function HandwrittenText() {
       });
     }
 
+    // RAF safety net: if we're past section-two, force container hidden.
+    // Before that point, ensure the container is visible so the SVG animation shows.
+    let rafId: number;
+    let wasForceHidden = false;
+    function ensureHidden() {
+      if (sectionTwo) {
+        const s2Top = sectionTwo.getBoundingClientRect().top;
+        const vh = window.innerHeight;
+        if (s2Top < vh * 0.5) {
+          // Past the exit — force container hidden
+          if (!wasForceHidden) {
+            container.style.opacity = "0";
+            container.style.visibility = "hidden";
+            wasForceHidden = true;
+          }
+        } else {
+          // In the visible zone — make sure container is opaque and visible
+          // (the SVG inside handles its own opacity for the draw animation)
+          if (wasForceHidden) {
+            container.style.opacity = "";
+            container.style.visibility = "";
+            wasForceHidden = false;
+          }
+        }
+      }
+      rafId = requestAnimationFrame(ensureHidden);
+    }
+    rafId = requestAnimationFrame(ensureHidden);
+
     return () => {
+      cancelAnimationFrame(rafId);
       tl.scrollTrigger?.kill();
       fadeOutTrigger.kill();
       exitTrigger?.kill();
@@ -119,7 +150,7 @@ export default function HandwrittenText() {
         className="w-56 md:w-80 lg:w-96"
         style={{
           transform: "rotate(5deg) translateZ(0)",
-          filter: "drop-shadow(3px 3px 6px rgba(0,0,0,0.5))",
+          filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.7)) drop-shadow(4px 4px 10px rgba(0,0,0,0.4))",
           WebkitTransform: "rotate(5deg) translateZ(0)",
         }}
       >

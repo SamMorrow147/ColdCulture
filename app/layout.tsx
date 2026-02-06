@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Krona_One } from "next/font/google";
+import HamburgerMenu from "@/components/HamburgerMenu";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -9,6 +10,12 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const kronaOne = Krona_One({
+  variable: "--font-krona",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -30,9 +37,9 @@ export default function RootLayout({
         <link rel="preload" href="/ColdCulture.svg" as="image" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${kronaOne.variable} antialiased`}
       >
-        {children}
+        <HamburgerMenu>{children}</HamburgerMenu>
       </body>
     </html>
   );

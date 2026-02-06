@@ -1,0 +1,145 @@
+/* ===================================================================
+   Hamburger menu – right-aligned burger, foggy overlay nav, content blur
+   =================================================================== */
+
+/* Wrapper: transparent pass-through, must NOT clip or create a new
+   stacking / scroll context that would break position:fixed children */
+.hamburger-screen {
+  /* no position, overflow, or z-index — stay invisible to layout */
+}
+
+/* ---- Header / burger button (fixed, top-right) ---- */
+.hamburger-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 50;          /* above logo (z-30), nav overlay, everything */
+  pointer-events: none;  /* let clicks pass through the empty header */
+}
+
+.target-burger {
+  pointer-events: auto;  /* button itself is clickable */
+  position: relative;    /* anchor for the absolutely-positioned buns */
+  margin: 1.25rem;
+  width: 3.25em;
+  height: 3.25em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.5s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.target-burger:hover {
+  opacity: 0.65;
+}
+
+.target-burger:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ---- Buns (two lines → X) ---- */
+.buns {
+  width: 1.625em;
+  height: 1.625em;
+  display: block;
+  position: relative;
+  color: #fff;
+  transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1),
+              color 1s cubic-bezier(0.23, 1, 0.32, 1);
+  transform: translateZ(0);
+}
+
+.bun {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -1px;
+  transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1),
+              background-color 1s cubic-bezier(0.23, 1, 0.32, 1);
+  transform: translateY(-4px) translateZ(0);
+}
+
+.bun:last-child {
+  transform: translateY(4px) translateZ(0);
+}
+
+/* Toggled → X */
+.target-burger.toggled .bun {
+  transform: rotate(45deg) translateZ(0);
+}
+
+.target-burger.toggled .bun:last-child {
+  transform: rotate(-45deg) translateZ(0);
+}
+
+/* ---- Foggy full-screen overlay nav ---- */
+.main-nav {
+  position: fixed;
+  inset: 0;
+  z-index: 40;           /* below burger (50), above content */
+  padding: 5rem 2rem 2rem;
+  /* foggy / frosted look */
+  background: rgba(27, 0, 27, 0.55);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  backdrop-filter: blur(24px) saturate(120%);
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+.main-nav.toggled {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.main-nav ul {
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.main-nav li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.main-nav li:last-child {
+  border-bottom: none;
+}
+
+.main-nav a {
+  font-size: 1.35em;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  color: #fff;
+  padding: 0.9em 0;
+  display: block;
+  transition: opacity 0.4s ease, padding-left 0.4s ease;
+  text-decoration: none;
+}
+
+.main-nav a:hover {
+  opacity: 0.55;
+  padding-left: 1em;
+}
+
+/* ---- Content wrapper ----
+   NOTE: Do NOT apply filter (blur, etc.) here — it creates a new
+   containing block that breaks position:fixed on all descendants
+   (backgrounds, logo, snow).  The backdrop-filter on .main-nav
+   already provides the frosted separation.                        */
+.hamburger-container {
+  /* clean pass-through, no filter */
+}

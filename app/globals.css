@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Abject Failure";
+  src: url("/AbjectFailure.otf") format("opentype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #1b001b;
   --foreground: #ededed;
@@ -34,3 +42,35 @@ body {
   width: 100%;
   max-width: 32rem;
 }
+
+/* First-section fog: cap width on desktop so it doesn’t get too wide */
+@media (min-width: 1280px) {
+  .foggy-corner {
+    max-width: 420px;
+  }
+}
+
+/* Section 2 fog: slightly taller on desktop */
+@media (min-width: 1024px) {
+  .section-two-fog {
+    height: 28vh !important;
+  }
+}
+@media (min-width: 1280px) {
+  .section-two-fog {
+    height: 30vh !important;
+  }
+}
+
+/* Drops page: expanded card shadow */
+.drops-item.active {
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.3);
+}
+.drops-item.active .item-img {
+  max-width: 45%;
+  bottom: 220px;
+}
+.drops-item.active .item-description {
+  bottom: 80px;
+}
+

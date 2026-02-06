@@ -9,6 +9,10 @@ import PixelSnow from "@/components/PixelSnow";
 import ZoomFigure from "@/components/ZoomFigure";
 import HandwrittenText from "@/components/HandwrittenText";
 import FoggyCorner from "@/components/FoggyCorner";
+import SectionTwoFog from "@/components/SectionTwoFog";
+import SectionTwoText from "@/components/SectionTwoText";
+import SectionFourFog from "@/components/SectionFourFog";
+import SectionFourText from "@/components/SectionFourText";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +20,8 @@ export default function Home() {
   const [showSnow, setShowSnow] = useState(false);
   const snowRef = useRef<HTMLDivElement>(null);
   const sectionTwoBgRef = useRef<HTMLDivElement>(null);
+  const sectionThreeBgRef = useRef<HTMLDivElement>(null);
+  const sectionFourBgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Start snow after logo animation completes (0.4s delay + 2.2s duration = 2.6s)
@@ -59,19 +65,97 @@ export default function Home() {
     };
   }, []);
 
+  // Section 3: slide section 2 image right and show necklace (third image)
+  useEffect(() => {
+    const sectionTwoBg = sectionTwoBgRef.current;
+    const sectionThreeBg = sectionThreeBgRef.current;
+    const sectionThree = document.getElementById("section-three");
+    if (!sectionTwoBg || !sectionThreeBg || !sectionThree) return;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionThree,
+        start: "top bottom",
+        end: "top top",
+        scrub: true,
+      },
+    });
+
+    tl.to(sectionTwoBg, { x: "100vw", ease: "none" }, 0);
+    tl.to(sectionThreeBg, { opacity: 1, ease: "none" }, 0);
+
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
+  }, []);
+
+  // Section 4: section 3 (necklace) scrolls up to reveal screen-printing image
+  useEffect(() => {
+    const sectionThreeBg = sectionThreeBgRef.current;
+    const sectionFourBg = sectionFourBgRef.current;
+    const sectionFour = document.getElementById("section-four");
+    if (!sectionThreeBg || !sectionFourBg || !sectionFour) return;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionFour,
+        start: "top bottom",
+        end: "top top",
+        scrub: true,
+      },
+    });
+
+    tl.to(sectionThreeBg, { y: "-100vh", ease: "none" }, 0);
+    tl.to(sectionFourBg, { opacity: 1, ease: "none" }, 0);
+
+    return () => {
+      tl.scrollTrigger?.kill();
+      tl.kill();
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#1b001b]">
-      {/* Section 2 background — hidden at first, fades in behind section 1 as you approach section 2 */}
+      {/* Section 2 background — hidden at first, fades in; later slides right to reveal section 3 */}
       <div
         ref={sectionTwoBgRef}
         className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url('/freepik__a-young-ethnic-woman-in-a-purple-shirt-and-winter-__60532.png')`,
+          zIndex: 1,
+          opacity: 0,
+        }}
+        aria-hidden
+      />
+      {/* Section 3 background — only visible when section 3; later scrolls up to reveal section 4 */}
+      <div
+        ref={sectionThreeBgRef}
+        className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/freepik__close-up-product-shot-of-this-necklace-swinging-ou__60531.png')`,
+          zIndex: 1,
+          opacity: 0,
+        }}
+        aria-hidden
+      />
+      {/* Section 4 background — behind section 3, revealed when section 3 scrolls up */}
+      <div
+        ref={sectionFourBgRef}
+        className="fixed inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/freepik__an-image-outside-in-a-blizzard-at-a-big-box-of-the__64105.png')`,
           zIndex: 0,
           opacity: 0,
         }}
         aria-hidden
       />
+      {/* Section 2: fog along bottom + "You Betcha!" text */}
+      <SectionTwoFog />
+      <SectionTwoText />
+      {/* Section 4: fog + "drop offs" text */}
+      <SectionFourFog />
+      <SectionFourText />
       {/* Hero: full viewport, logo centered; on scroll logo moves to top-left */}
       <section className="relative min-h-screen">
         <ScrollBackground imagePath="/Heroimage.png" />
@@ -106,6 +190,12 @@ export default function Home() {
       <div className="h-[100vh]" aria-hidden />
       {/* Section 2 — scrolling into this triggers the parallax exit */}
       <section id="section-two" className="relative min-h-[200vh]">
+      </section>
+      {/* Section 3 — scrolling into this slides section 2 image right, revealing necklace */}
+      <section id="section-three" className="relative min-h-[200vh]">
+      </section>
+      {/* Section 4 — scrolling into this slides section 3 (necklace) up, revealing screen-printing image */}
+      <section id="section-four" className="relative min-h-[200vh]">
       </section>
     </div>
   );
