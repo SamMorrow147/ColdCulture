@@ -55,6 +55,9 @@ export default function ScrollBackground({
         backgroundImage: `url(${imagePath})`,
         zIndex: 1,
         opacity: 0,
+        willChange: "transform, opacity",
+        WebkitBackfaceVisibility: "hidden",
+        WebkitPerspective: 1000,
       }}
       aria-hidden
     />

@@ -69,6 +69,9 @@ export default function LogoHero() {
         top: 0,
         left: 0,
         opacity: 0,
+        willChange: "transform, opacity",
+        WebkitBackfaceVisibility: "hidden",
+        WebkitPerspective: 1000,
       }} 
       aria-hidden
     >

@@ -36,7 +36,14 @@ export default function HandwrittenText() {
       }
     };
 
+    // Initialize immediately - prevent glitchy load on Safari
     updatePatternPosition();
+    
+    // Small delay for Safari to ensure DOM is fully ready
+    requestAnimationFrame(() => {
+      updatePatternPosition();
+    });
+    
     window.addEventListener("resize", updatePatternPosition);
     window.addEventListener("scroll", updatePatternPosition);
 
