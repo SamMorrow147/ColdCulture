@@ -9,11 +9,13 @@ gsap.registerPlugin(ScrollTrigger);
 export default function HandwrittenText() {
   const svgRef = useRef<SVGSVGElement>(null);
   const patternRef = useRef<SVGPatternElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const svg = svgRef.current;
     const pattern = patternRef.current;
-    if (!svg || !pattern) return;
+    const container = containerRef.current;
+    if (!svg || !pattern || !container) return;
 
     // Calculate pattern offset and size to align with page background
     const updatePatternPosition = () => {
@@ -36,12 +38,17 @@ export default function HandwrittenText() {
       }
     };
 
+    // Hide container initially to prevent glitchy load
+    gsap.set(container, { visibility: "hidden" });
+    
     // Initialize immediately - prevent glitchy load on Safari
     updatePatternPosition();
     
     // Small delay for Safari to ensure DOM is fully ready
     requestAnimationFrame(() => {
       updatePatternPosition();
+      // Show container after pattern is ready
+      gsap.set(container, { visibility: "visible" });
     });
     
     window.addEventListener("resize", updatePatternPosition);
@@ -119,12 +126,12 @@ export default function HandwrittenText() {
   }, []);
 
   return (
-    <div className="fixed bottom-12 left-12 z-40 pointer-events-none">
+    <div ref={containerRef} className="fixed bottom-12 left-12 z-40 pointer-events-none">
       <svg
         ref={svgRef}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 76.02 54.85"
-        className="w-48 md:w-64"
+        className="w-56 md:w-80 lg:w-96"
         style={{
           transform: "rotate(5deg)",
           filter: "drop-shadow(3px 3px 6px rgba(0,0,0,0.5))",

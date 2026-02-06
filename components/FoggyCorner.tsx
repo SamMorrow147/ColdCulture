@@ -48,7 +48,7 @@ export default function FoggyCorner({
       className="fixed bottom-0 left-0 pointer-events-none"
       style={{
         width: "50vw",
-        height: "35vh",
+        height: "45vh",
         zIndex: 35,
         opacity: 0,
       }}
@@ -70,8 +70,8 @@ export default function FoggyCorner({
         style={{
           position: "absolute",
           inset: 0,
-          maskImage: "radial-gradient(circle at bottom left, black 0%, black 20%, transparent 60%)",
-          WebkitMaskImage: "radial-gradient(circle at bottom left, black 0%, black 20%, transparent 60%)",
+          maskImage: "radial-gradient(ellipse 120% 140% at bottom left, black 0%, black 15%, rgba(0,0,0,0.7) 35%, transparent 65%)",
+          WebkitMaskImage: "radial-gradient(ellipse 120% 140% at bottom left, black 0%, black 15%, rgba(0,0,0,0.7) 35%, transparent 65%)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           background: "rgba(255,255,255,0.15)",
