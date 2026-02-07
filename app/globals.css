@@ -52,6 +52,21 @@ body {
 
 /* Section fog heights are set via Tailwind classes on the components */
 
+/* Drops page: full-height background on mobile (100dvh = dynamic viewport; 100vh fallback) */
+.drops-page,
+.drops-page .fixed.inset-0 {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+}
+.drops-page [class*="absolute inset-0"].w-full {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+}
+
 /* Drops page: expanded card shadow */
 .drops-item.active {
   box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.3);

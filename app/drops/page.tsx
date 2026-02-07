@@ -269,14 +269,14 @@ export default function DropsPage() {
   }, []);
 
   return (
-    <div className="drops-page fixed inset-0 w-full h-full overflow-hidden">
+    <div className="drops-page fixed inset-0 w-full h-[100dvh] min-h-[100dvh] overflow-hidden">
       {/* ── Full-screen backgrounds ── */}
-      <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 w-full h-[100dvh] min-h-[100dvh] overflow-hidden pointer-events-none">
         {BGS.map((url, i) => (
           <div
             key={i}
             ref={(el) => { bgRefs.current[i] = el; }}
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-[100dvh] min-h-[100dvh]"
             style={{
               backgroundImage: `url(${url})`,
               backgroundSize: i === 2 ? "150%" : "cover",
