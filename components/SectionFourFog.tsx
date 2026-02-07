@@ -39,7 +39,7 @@ export default function SectionFourFog() {
   return (
     <div
       ref={fogRef}
-      className="section-four-fog fixed left-0 right-0 bottom-0 xl:bottom-[6vh] w-full h-[24vh] lg:h-[28vh] xl:h-[30vh] pointer-events-none"
+      className="section-four-fog fixed left-0 right-0 bottom-0 w-full h-[28vh] lg:h-[32vh] xl:h-[36vh] pointer-events-none"
       style={{
         zIndex: 2,
         opacity: 0,
@@ -56,15 +56,13 @@ export default function SectionFourFog() {
           WebkitFilter: "blur(50px)",
         }}
       />
+      {/* Fog gradient overlay — Safari-safe (no backdrop-filter + mask combo) */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          maskImage: "linear-gradient(to top, black 0%, black 40%, rgba(0,0,0,0.5) 70%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to top, black 0%, black 40%, rgba(0,0,0,0.5) 70%, transparent 100%)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          background: "rgba(255,255,255,0.12)",
+          background:
+            "linear-gradient(to top, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.05) 70%, transparent 100%)",
         }}
       />
     </div>

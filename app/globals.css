@@ -50,17 +50,7 @@ body {
   }
 }
 
-/* Section 2 fog: slightly taller on desktop */
-@media (min-width: 1024px) {
-  .section-two-fog {
-    height: 28vh !important;
-  }
-}
-@media (min-width: 1280px) {
-  .section-two-fog {
-    height: 30vh !important;
-  }
-}
+/* Section fog heights are set via Tailwind classes on the components */
 
 /* Drops page: expanded card shadow */
 .drops-item.active {
