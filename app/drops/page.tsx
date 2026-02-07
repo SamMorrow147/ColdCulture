@@ -269,28 +269,33 @@ export default function DropsPage() {
   }, []);
 
   return (
-    <div className="drops-page fixed inset-0 w-full h-[100dvh] min-h-[100dvh] overflow-hidden">
-      {/* ── Full-screen backgrounds ── */}
-      <div className="fixed inset-0 w-full h-[100dvh] min-h-[100dvh] overflow-hidden pointer-events-none">
+    <div className="drops-page drops-page-root">
+      {/* ── Full-screen backgrounds: fixed + inset 0 (no height) so mobile viewport is correct ── */}
+      <div className="drops-bg-wrap">
         {BGS.map((url, i) => (
           <div
             key={i}
             ref={(el) => { bgRefs.current[i] = el; }}
-            className="absolute inset-0 w-full h-[100dvh] min-h-[100dvh]"
-            style={{
-              backgroundImage: `url(${url})`,
-              backgroundSize: i === 2 ? "150%" : "cover",
-              backgroundPosition: i === 2 ? "center 65%" : "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          />
+            className={`drops-bg-layer ${i === 2 ? "drops-bg-layer-third" : ""}`}
+          >
+            <img
+              src={url}
+              alt=""
+              className={i === 2 ? "drops-bg-img drops-bg-img-third" : "drops-bg-img"}
+              draggable={false}
+              fetchPriority={i === 2 ? "high" : "low"}
+            />
+          </div>
         ))}
       </div>
+
+      {/* Black transparent overlay over background */}
+      <div className="drops-bg-overlay" aria-hidden />
 
       {/* ── Main panel ── */}
       <main
         ref={panelRef}
-        className="drops-panel relative w-full h-full overflow-hidden cursor-grab active:cursor-grabbing select-none"
+        className="drops-panel relative z-10 w-full h-full overflow-hidden cursor-grab active:cursor-grabbing select-none"
       >
         {/* Header */}
         <header className="relative z-20 flex justify-center items-center px-4 py-3 text-white bg-black/20 backdrop-blur-sm">
