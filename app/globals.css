@@ -43,7 +43,7 @@ body {
   max-width: 32rem;
 }
 
-/* First-section fog: cap width on desktop so it doesn’t get too wide */
+/* First-section fog: cap width on desktop so it doesn't get too wide */
 @media (min-width: 1280px) {
   .foggy-corner {
     max-width: 420px;
@@ -121,15 +121,42 @@ body {
   }
 }
 
-/* Drops page: expanded card shadow */
+/* Drops page: frosted glass card */
+.drops-item-foggy {
+  background: rgba(27, 0, 27, 0.55);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  backdrop-filter: blur(24px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Drops page: dark backdrop when a product is open */
+.drops-active-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.drops-panel:has(.drops-item.active) .drops-active-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Drops page: expanded card */
 .drops-item.active {
   box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.3);
 }
-.drops-item.active .item-img {
-  max-width: 45%;
-  bottom: 220px;
+
+/* Price hidden until card is open */
+.drops-item .item-price {
+  opacity: 0;
+  visibility: hidden;
 }
-.drops-item.active .item-description {
-  bottom: 80px;
+.drops-item.active .item-price {
+  opacity: 1;
+  visibility: visible;
 }
 
