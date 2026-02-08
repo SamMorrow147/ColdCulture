@@ -45,7 +45,7 @@ export default function SectionThreeFoggyCorner() {
       opacity = Math.max(0, Math.min(1, opacity));
 
       if (Math.abs(opacity - lastOpacity) > 0.001) {
-        fog.style.opacity = String(opacity);
+        fog!.style.opacity = String(opacity);
         lastOpacity = opacity;
       }
 

@@ -45,7 +45,7 @@ export default function SectionThreeText() {
       opacity = Math.max(0, Math.min(1, opacity));
 
       if (Math.abs(opacity - lastOpacity) > 0.001) {
-        el.style.opacity = String(opacity);
+        el!.style.opacity = String(opacity);
         lastOpacity = opacity;
       }
 
