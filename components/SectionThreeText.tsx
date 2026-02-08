@@ -64,7 +64,7 @@ export default function SectionThreeText() {
       style={{
         opacity: 0,
         fontFamily: "'Abject Failure', sans-serif",
-        fontSize: "clamp(3rem, 10vw, 7rem)",
+        fontSize: "clamp(4.5rem, 10vw, 7rem)",
         fontWeight: 600,
         backgroundImage: `url(${SECTION_THREE_IMAGE})`,
         backgroundSize: "cover",
