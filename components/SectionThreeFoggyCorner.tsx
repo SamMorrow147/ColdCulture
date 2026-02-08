@@ -60,7 +60,7 @@ export default function SectionThreeFoggyCorner() {
   return (
     <div
       ref={fogRef}
-      className="fixed bottom-0 right-0 pointer-events-none w-[78vw] h-[52vh] md:w-[50vw] md:h-[45vh]"
+      className="fixed bottom-0 right-0 pointer-events-none w-[78vw] h-[36vh] md:w-[50vw] md:h-[45vh]"
       style={{
         zIndex: 2,
         opacity: 0,

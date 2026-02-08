@@ -7,11 +7,11 @@ import { Draggable } from "gsap/Draggable";
 gsap.registerPlugin(Draggable);
 
 const ITEMS = [
-  { img: "/T-T-CC copy.png", title: "MN Knux T", price: "$ 40" },
-  { img: "/P-T-CC.png", title: "MN Knux T", price: "$ 40" },
-  { img: "/KnuxKeychain.png", title: "Knux Keychain", price: "$ 40" },
-  { img: "/KnuckNecklace.png", title: "Knux Necklace", price: "$ 40" },
-  { img: "/Knuxearings.png", title: "Knux Earrings", price: "$ 40" },
+  { img: "/T-T-CC copy.png", title: "MN Knux T", price: "$ 85", checkoutUrl: "https://buy.stripe.com/test_8x29AM7QI2MCeUh3Ho3AY02" },
+  { img: "/P-T-CC.png", title: "MN Knux T", price: "$ 85", checkoutUrl: "https://buy.stripe.com/test_28E3co2wodrgfYl5Pw3AY01" },
+  { img: "/KnuxKeychain.png", title: "Knux Keychain", price: "$ 45" },
+  { img: "/KnuckNecklace.png", title: "Knux Necklace", price: "$ 75" },
+  { img: "/Knuxearings.png", title: "Knux Earrings", price: "$ 75" },
   { img: "/freepik__minimal-soft-studio-light-photography-this-tank-to__85476.png", title: "CC Tank", price: "$ 40" },
   { img: "/HOTC-Sticker-min.png", title: "Heart of the City", price: "$ 40" },
 ];
@@ -89,10 +89,12 @@ export default function DropsPage() {
     /* ── Activate card ── */
     function activate(index: number) {
       if (activeRef.current !== null) return;
+      if (isAnimating) return;
       if (!panel) return;
       const item = itemEls.current[index];
       if (!item) return;
 
+      isAnimating = true;
       activeRef.current = index;
 
       const rect = item.getBoundingClientRect();
@@ -138,24 +140,24 @@ export default function DropsPage() {
         height: expandedHeight,
         overflow: "visible",
         borderRadius: 0,
-        backdropFilter: "none",
-        WebkitBackdropFilter: "none",
         boxShadow: "0 -8px 30px rgba(0,0,0,0.3)",
         onComplete: () => {
           item.classList.add("active");
+          isAnimating = false;
         },
       }, 0);
 
       if (img) {
-        // Fix image width to its collapsed card size and center it
-        // so it doesn't grow when the card expands to full width
+        // Center image; when expanded animate to larger size
         gsap.set(img, {
           width: rect.width,
           left: "50%",
           right: "auto",
           xPercent: -50,
         });
+        const expandedImgWidth = Math.min(rect.width * 1.55, panelRect.width * 0.65);
         tl.to(img, {
+          width: expandedImgWidth,
           bottom: 220,
         }, 0);
       }
@@ -178,13 +180,55 @@ export default function DropsPage() {
     }
 
     /* ── Deactivate card ── */
+    let isAnimating = false;
+
+    function forceReset() {
+      // Emergency cleanup: clear active state no matter what
+      const idx = activeRef.current;
+      if (idx !== null) {
+        const item = itemEls.current[idx];
+        if (item) {
+          item.classList.remove("active");
+          gsap.killTweensOf(item);
+          gsap.set(item, { clearProps: "all" });
+          const img = item.querySelector(".item-img") as HTMLElement;
+          const desc = item.querySelector(".item-description") as HTMLElement;
+          const price = item.querySelector(".item-price") as HTMLElement;
+          const buyBtn = item.querySelector(".item-buy-btn") as HTMLElement;
+          if (img) gsap.set(img, { clearProps: "all" });
+          if (desc) gsap.set(desc, { clearProps: "all" });
+          if (price) gsap.set(price, { clearProps: "all" });
+          if (buyBtn) gsap.set(buyBtn, { clearProps: "all" });
+          // Return item to card list if it was moved out
+          const spacer = spacerRef.current;
+          if (spacer && spacer.parentNode) {
+            spacer.parentNode.insertBefore(item, spacer);
+            spacer.parentNode.removeChild(spacer);
+          } else if (cards && !cards.contains(item)) {
+            cards.appendChild(item);
+          }
+        }
+      }
+      spacerRef.current = null;
+      activeRef.current = null;
+      isAnimating = false;
+    }
+
     function deactivate() {
       const idx = activeRef.current;
       if (idx === null || !panel) return;
+      if (isAnimating) return;
+
       const item = itemEls.current[idx];
       const spacer = spacerRef.current;
-      if (!item || !spacer) return;
 
+      // If item or spacer is missing, force-reset to avoid stuck state
+      if (!item || !spacer) {
+        forceReset();
+        return;
+      }
+
+      isAnimating = true;
       item.classList.remove("active");
 
       const spacerRect = spacer.getBoundingClientRect();
@@ -223,8 +267,16 @@ export default function DropsPage() {
           spacer.parentNode?.removeChild(spacer);
           spacerRef.current = null;
           activeRef.current = null;
+          isAnimating = false;
         },
       }, 0);
+
+      // Safety timeout: if onComplete never fires, force-reset
+      setTimeout(() => {
+        if (activeRef.current === idx) {
+          forceReset();
+        }
+      }, 1500);
 
       if (img) {
         tl.to(img, {
@@ -309,6 +361,17 @@ export default function DropsPage() {
     }
     panel.addEventListener("click", handlePanelClick);
 
+    /* ── Backdrop click always closes (failsafe) ── */
+    const backdrop = panel.querySelector(".drops-active-backdrop") as HTMLElement;
+    function handleBackdropClick() {
+      if (activeRef.current !== null) {
+        deactivate();
+      }
+    }
+    if (backdrop) {
+      backdrop.addEventListener("click", handleBackdropClick);
+    }
+
     /* ── Mouse wheel scrolls through cards ── */
     let wheelLocked = false;
 
@@ -364,6 +427,8 @@ export default function DropsPage() {
       });
       panel.removeEventListener("click", handlePanelClick);
       panel.removeEventListener("wheel", handleWheel);
+      if (backdrop) backdrop.removeEventListener("click", handleBackdropClick);
+      forceReset(); // clean up any active state on unmount
     };
   }, []);
 
@@ -456,12 +521,24 @@ export default function DropsPage() {
                   {product.price}
                 </p>
                 {index < 5 && (
-                  <button
-                    className="item-buy-btn neon-glass-btn pointer-events-auto mx-auto"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Buy Now
-                  </button>
+                  product.checkoutUrl ? (
+                    <a
+                      href={product.checkoutUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="item-buy-btn neon-glass-btn pointer-events-auto mx-auto inline-flex"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Buy Now
+                    </a>
+                  ) : (
+                    <button
+                      className="item-buy-btn neon-glass-btn pointer-events-auto mx-auto"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Buy Now
+                    </button>
+                  )
                 )}
               </div>
             </div>

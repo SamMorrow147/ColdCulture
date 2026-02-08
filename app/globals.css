@@ -57,16 +57,17 @@ body {
   --duration: 2.2s;
 
   /* Only these two purples – no pink; narrow band for accent to avoid blend */
-  background: linear-gradient(
+  background-image: linear-gradient(
     90deg,
-    #6b21a8 0%,
-    #6b21a8 38%,
-    #4921a8 50%,
-    #6b21a8 62%,
-    #6b21a8 100%
+    #421468 0%,
+    #421468 35%,
+    #6b21a8 50%,
+    #421468 65%,
+    #421468 100%
   ) !important;
   background-size: 200% 100% !important;
-  background-color: #6b21a8 !important; /* fallback; no pink */
+  background-color: #421468 !important; /* fallback; no pink */
+  background-repeat: no-repeat !important;
   animation: logo-shimmer var(--duration) linear infinite;
   color: transparent; /* prevent any text color leaking in */
 
@@ -154,7 +155,7 @@ body {
   }
 }
 
-/* Drops page: frosted glass card */
+/* Drops page: frosted glass card (same foggy look as the nav) */
 .drops-item-foggy {
   background: rgba(27, 0, 27, 0.55);
   -webkit-backdrop-filter: blur(24px) saturate(120%);
@@ -163,7 +164,7 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-/* Drops page: dark backdrop when a product is open */
+/* Drops page: dark transparent overlay above/behind extended product (no blur) */
 .drops-active-backdrop {
   position: fixed;
   inset: 0;
@@ -251,4 +252,3 @@ body {
   color: #9ca3af !important;
   overflow: visible;
 }
-
