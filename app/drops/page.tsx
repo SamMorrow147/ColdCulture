@@ -644,6 +644,7 @@ export default function DropsPage() {
                   className={`px-3 pt-2 md:pt-3 text-lg md:text-xl lg:text-2xl font-semibold leading-snug capitalize ${index >= 5 ? "text-gray-400" : "text-white"}`}
                   style={{
                     fontFamily: "'Abject Failure', sans-serif",
+                    letterSpacing: "0.2em",
                     ...(index < 5 && {
                       WebkitTextStroke: "1px white",
                       paintOrder: "stroke fill",
