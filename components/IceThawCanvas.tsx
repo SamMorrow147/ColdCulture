@@ -278,15 +278,37 @@ const IceThawCanvas = forwardRef<IceThawCanvasHandle, { maxOpacity?: number; onR
         rafId = requestAnimationFrame(tick);
       }
 
-      function handleMouseMove(e: MouseEvent) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+      function setPosition(x: number, y: number) {
+        mouseX = x;
+        mouseY = y;
         lastMove = performance.now();
         isActive = true;
       }
 
+      function handleMouseMove(e: MouseEvent) {
+        setPosition(e.clientX, e.clientY);
+      }
+
       function handleMouseLeave() {
         isActive = false;
+      }
+
+      function handleTouchStart(e: TouchEvent) {
+        if (e.touches.length > 0) {
+          setPosition(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }
+
+      function handleTouchMove(e: TouchEvent) {
+        if (e.touches.length > 0) {
+          setPosition(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }
+
+      function handleTouchEnd(e: TouchEvent) {
+        if (e.touches.length === 0) {
+          isActive = false;
+        }
       }
 
       img = new Image();
@@ -300,12 +322,20 @@ const IceThawCanvas = forwardRef<IceThawCanvasHandle, { maxOpacity?: number; onR
       window.addEventListener("resize", resize);
       window.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseleave", handleMouseLeave);
+      window.addEventListener("touchstart", handleTouchStart, { passive: true });
+      window.addEventListener("touchmove", handleTouchMove, { passive: true });
+      window.addEventListener("touchend", handleTouchEnd, { passive: true });
+      window.addEventListener("touchcancel", handleTouchEnd, { passive: true });
 
       return () => {
         cancelAnimationFrame(rafId);
         window.removeEventListener("resize", resize);
         window.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseleave", handleMouseLeave);
+        window.removeEventListener("touchstart", handleTouchStart);
+        window.removeEventListener("touchmove", handleTouchMove);
+        window.removeEventListener("touchend", handleTouchEnd);
+        window.removeEventListener("touchcancel", handleTouchEnd);
       };
     }, []);
 
