@@ -31,11 +31,13 @@ const IceThawCanvas = forwardRef<IceThawCanvasHandle, { maxOpacity?: number; onR
     }));
 
     useEffect(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+      const canvasEl = canvasRef.current;
+      if (!canvasEl) return;
+      const canvas = canvasEl;
 
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+      const ctxEl = canvas.getContext("2d");
+      if (!ctxEl) return;
+      const ctx = ctxEl;
 
       let img: HTMLImageElement | null = null;
       let w = 0;
