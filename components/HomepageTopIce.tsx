@@ -27,8 +27,10 @@ export default function HomepageTopIce() {
 
   // Drive the canvas reveal — only after the canvas image is loaded
   useEffect(() => {
-    const handle = canvasRef.current;
-    if (!handle || !canvasReady) return;
+    const h = canvasRef.current;
+    if (!h || !canvasReady) return;
+    // Local const so TypeScript knows it's non-null inside closures
+    const handle = h;
 
     let animId: number | null = null;
 

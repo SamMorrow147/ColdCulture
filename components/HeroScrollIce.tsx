@@ -19,8 +19,9 @@ export default function HeroScrollIce() {
 
   useEffect(() => {
     const section = containerRef.current?.parentElement ?? document.body;
-    const handle = canvasRef.current;
-    if (!handle || !canvasReady) return;
+    const h = canvasRef.current;
+    if (!h || !canvasReady) return;
+    const handle = h;
 
     handle.setReveal(0);
 
