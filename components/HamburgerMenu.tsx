@@ -37,15 +37,10 @@ export default function HamburgerMenu({
 
   const handleForceNavigate = (href: string) => (e: React.MouseEvent) => {
     e.preventDefault();
-    setToggled(false);
-    // If already on the target page, a plain <a> won't reload —
-    // force a full page load so the useEffect re-runs with the hash.
-    if (window.location.pathname === new URL(href, window.location.origin).pathname) {
-      window.location.hash = new URL(href, window.location.origin).hash;
-      window.location.reload();
-    } else {
-      window.location.href = href;
-    }
+    e.stopPropagation();
+    // Always force a full page load — no React state changes, no Next.js
+    // client-side routing interference. Works from any page.
+    window.location.assign(href);
   };
 
   /* Animate the ice freeze effect when nav opens/closes */

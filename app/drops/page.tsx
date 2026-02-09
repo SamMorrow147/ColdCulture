@@ -30,22 +30,14 @@ export default function DropsPage() {
   const activeRef = useRef<number | null>(null);
   const spacerRef = useRef<HTMLDivElement | null>(null);
 
-  // Capture the hash during the very first client render —
-  // this survives React strict-mode double-effect runs because
-  // refs persist across unmount/remount cycles within strict mode.
-  const capturedHashRef = useRef<string>("");
-  if (typeof window !== "undefined" && !capturedHashRef.current) {
-    capturedHashRef.current = window.location.hash;
-  }
-
   useEffect(() => {
     const panel = panelRef.current;
     const cards = cardsRef.current;
     const bgs = bgRefs.current;
     if (!panel || !cards) return;
 
-    /* ── Check for deep-link hash (read from ref, not window — survives strict mode) ── */
-    const startOnSteel = capturedHashRef.current === "#steel";
+    /* ── Check for deep-link hash ── */
+    const startOnSteel = window.location.hash === "#steel";
     // Necklace is index 3 in ITEMS; indices 2-4 (keychain, necklace, earrings) use BG 1
     const startSnapIdx = startOnSteel ? 3 : 0;
 
@@ -367,20 +359,25 @@ export default function DropsPage() {
       },
     });
 
-    /* ── Deep-link: re-position after layout is stable & sync Draggable ── */
+    /* ── Deep-link: re-position after layout is fully stable & sync Draggable ── */
     if (startOnSteel) {
+      // Double-rAF: first frame lets the browser lay out, second frame
+      // guarantees offsetLeft/offsetWidth are final (covers cold loads
+      // where the first frame may still have stale layout values).
       requestAnimationFrame(() => {
-        snapPoints = calcSnapPoints();
-        if (startSnapIdx < snapPoints.length) {
-          gsap.set(cards, { x: snapPoints[startSnapIdx] });
-        }
-        // Sync Draggable's internal position & bounds with the new snap points
-        const newMin = snapPoints[snapPoints.length - 1];
-        const newMax = snapPoints[0];
-        draggable.applyBounds({ minX: newMin - 40, maxX: newMax + 40 });
-        draggable.update();
-        // Clear hash only AFTER everything is positioned
-        window.history.replaceState(null, "", window.location.pathname);
+        requestAnimationFrame(() => {
+          snapPoints = calcSnapPoints();
+          if (startSnapIdx < snapPoints.length) {
+            gsap.set(cards, { x: snapPoints[startSnapIdx] });
+          }
+          // Sync Draggable's internal position & bounds
+          const newMin = snapPoints[snapPoints.length - 1];
+          const newMax = snapPoints[0];
+          draggable.applyBounds({ minX: newMin - 40, maxX: newMax + 40 });
+          draggable.update();
+          // Clear hash only AFTER everything is positioned
+          window.history.replaceState(null, "", window.location.pathname);
+        });
       });
     }
 
