@@ -137,21 +137,41 @@ export default function HamburgerMenu({
           <div ref={iceBottomRef} className="nav-ice-edge nav-ice-bottom" />
         </div>
 
-        <ul>
-          {NAV_LINKS.map(({ href, label }) => (
-            <li key={label}>
-              <a href={href} onClick={closeMenu}>
-                <span>{label}</span>
+        <div className="main-nav-inner">
+          <ul>
+            {NAV_LINKS.map(({ href, label }) => (
+              <li key={label}>
+                <a href={href} onClick={closeMenu}>
+                  <span>{label}</span>
+                </a>
+              </li>
+            ))}
+            {/* Metal — plain <a> with no JS, forces full page load */}
+            <li>
+              <a href="/drops/knux-necklace">
+                <span>Metal</span>
               </a>
             </li>
-          ))}
-          {/* Metal — plain <a> with no JS, forces full page load */}
-          <li>
-            <a href="/drops/knux-necklace">
-              <span>Metal</span>
+          </ul>
+          <div className="nav-social" aria-label="Social links">
+            <a
+              href="https://www.facebook.com/profile.php?id=100090307900335"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Cold Culture on Facebook"
+            >
+              <img src="/facebook-3.svg" alt="" width={28} height={28} />
             </a>
-          </li>
-        </ul>
+            <a
+              href="https://www.instagram.com/shopcoldculture"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Cold Culture on Instagram"
+            >
+              <img src="/instagram-2.svg" alt="" width={28} height={28} />
+            </a>
+          </div>
+        </div>
       </nav>
 
       <div className="hamburger-container">
