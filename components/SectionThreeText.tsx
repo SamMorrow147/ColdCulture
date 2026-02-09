@@ -79,9 +79,10 @@ export default function SectionThreeText() {
       }}
     >
       <a
-        href="/drops#steel"
+        href="/drops/knux-necklace"
+        onClick={(e) => { e.preventDefault(); window.location.href = "/drops/knux-necklace"; }}
         className="pointer-events-auto cursor-pointer flex items-end justify-end"
-        aria-label="Shop Stainless – view necklace, keychain and earrings"
+        aria-label="Shop Metal – view necklace, keychain and earrings"
         style={{
           fontFamily: "inherit",
           fontSize: "inherit",

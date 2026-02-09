@@ -2,13 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 import "./HamburgerMenu.css";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/drops", label: "Drops" },
-  { href: "/drops#steel", label: "Metal", forceReload: true },
 ];
 
 export default function HamburgerMenu({
@@ -34,14 +32,6 @@ export default function HamburgerMenu({
   };
 
   const closeMenu = () => setToggled(false);
-
-  const handleForceNavigate = (href: string) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // Always force a full page load — no React state changes, no Next.js
-    // client-side routing interference. Works from any page.
-    window.location.assign(href);
-  };
 
   /* Animate the ice freeze effect when nav opens/closes */
   useEffect(() => {
@@ -148,23 +138,19 @@ export default function HamburgerMenu({
         </div>
 
         <ul>
-          {NAV_LINKS.map(({ href, label, forceReload }) => (
+          {NAV_LINKS.map(({ href, label }) => (
             <li key={label}>
-              {href.startsWith("#") ? (
-                <a href={href} onClick={closeMenu}>
-                  <span>{label}</span>
-                </a>
-              ) : forceReload ? (
-                <a href={href} onClick={handleForceNavigate(href)}>
-                  <span>{label}</span>
-                </a>
-              ) : (
-                <Link href={href} onClick={closeMenu}>
-                  <span>{label}</span>
-                </Link>
-              )}
+              <a href={href} onClick={closeMenu}>
+                <span>{label}</span>
+              </a>
             </li>
           ))}
+          {/* Metal — plain <a> with no JS, forces full page load */}
+          <li>
+            <a href="/drops/knux-necklace">
+              <span>Metal</span>
+            </a>
+          </li>
         </ul>
       </nav>
 

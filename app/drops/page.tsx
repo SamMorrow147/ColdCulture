@@ -2,18 +2,19 @@
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { Draggable } from "gsap/Draggable";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import { Draggable } from "gsap/all";
 
 gsap.registerPlugin(Draggable);
 
 const ITEMS = [
-  { img: "/T-T-CC copy.png", title: "MN Knux T", price: "$ 85", checkoutUrl: "https://buy.stripe.com/test_fZufZa9YQ72SbI50vc3AY03" },
-  { img: "/P-T-CC.png", title: "MN Knux T", price: "$ 85", checkoutUrl: "https://buy.stripe.com/test_28E3co2wodrgfYl5Pw3AY01" },
-  { img: "/KnuxKeychain.png", title: "Knux Keychain", price: "$ 45" },
-  { img: "/KnuckNecklace.png", title: "Knux Necklace", price: "$ 75", checkoutUrl: "https://buy.stripe.com/test_bJefZab2U2MC4fD0vc3AY05" },
-  { img: "/Knuxearings.png", title: "Knux Earrings", price: "$ 45", checkoutUrl: "https://buy.stripe.com/test_00wfZafja3QGdQd7XE3AY04" },
-  { img: "/freepik__minimal-soft-studio-light-photography-this-tank-to__85476.png", title: "CC Tank", price: "$ 40" },
-  { img: "/HOTC-Sticker-min.png", title: "Heart of the City", price: "$ 40" },
+  { slug: "knux-tee-tan", img: "/T-T-CC copy.png", title: "MN Knux T", price: "$ 85", checkoutUrl: "https://buy.stripe.com/test_fZufZa9YQ72SbI50vc3AY03" },
+  { slug: "knux-tee-purple", img: "/P-T-CC.png", title: "MN Knux T", price: "$ 85", checkoutUrl: "https://buy.stripe.com/test_28E3co2wodrgfYl5Pw3AY01" },
+  { slug: "knux-keychain", img: "/KnuxKeychain.png", title: "Knux Keychain", price: "$ 45" },
+  { slug: "knux-necklace", img: "/KnuckNecklace.png", title: "Knux Necklace", price: "$ 75", checkoutUrl: "https://buy.stripe.com/test_bJefZab2U2MC4fD0vc3AY05" },
+  { slug: "knux-earrings", img: "/Knuxearings.png", title: "Knux Earrings", price: "$ 45", checkoutUrl: "https://buy.stripe.com/test_00wfZafja3QGdQd7XE3AY04" },
+  { slug: "cc-tank", img: "/freepik__minimal-soft-studio-light-photography-this-tank-to__85476.png", title: "CC Tank", price: "$ 40" },
+  { slug: "hotc-sticker", img: "/HOTC-Sticker-min.png", title: "Heart of the City", price: "$ 40" },
 ];
 
 const BGS = [
@@ -21,6 +22,45 @@ const BGS = [
   "/freepik__a-product-shot-of-earrings-on-a-beautiful-ethnic-w__60530.png",
   "/freepik__dramatic-close-up-of-her-shirt-in-a-winter-storm-v__35142.png",
 ];
+
+/* ══════════════════════════════════════════════════════════════
+   PRODUCT ROUTING — every product has its own URL.
+   /drops              → first product (index 0)
+   /drops/knux-necklace → centers on that product
+   The URL updates as you scroll so every state is shareable.
+   ══════════════════════════════════════════════════════════════ */
+
+/** Map card index → background index (first third → bg 2, mid → bg 1, last → bg 0) */
+function bgForCard(idx: number): number {
+  const total = ITEMS.length;
+  if (idx < total / 3) return 2;
+  if (idx < (2 * total) / 3) return 1;
+  return 0;
+}
+
+/** Update URL bar to reflect the current product */
+function syncUrl(idx: number) {
+  const slug = ITEMS[idx]?.slug;
+  if (!slug) return;
+  const target = `/drops/${slug}`;
+  if (window.location.pathname !== target) {
+    window.history.replaceState(null, "", target);
+  }
+}
+
+/** Read the product slug from the current URL pathname */
+function getStartIndex(): number {
+  if (typeof window === "undefined") return 0;
+  const path = window.location.pathname;
+  const parts = path.split("/").filter(Boolean);
+  // parts: ["drops", "knux-necklace"] or ["drops"]
+  if (parts.length >= 2) {
+    const slug = parts[1];
+    const idx = ITEMS.findIndex((item) => item.slug === slug);
+    if (idx >= 0) return idx;
+  }
+  return 0;
+}
 
 export default function DropsPage() {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -36,14 +76,12 @@ export default function DropsPage() {
     const bgs = bgRefs.current;
     if (!panel || !cards) return;
 
-    /* ── Check for deep-link hash ── */
-    const startOnSteel = window.location.hash === "#steel";
-    // Necklace is index 3 in ITEMS; indices 2-4 (keychain, necklace, earrings) use BG 1
-    const startSnapIdx = startOnSteel ? 3 : 0;
+    // alive flag: set to false on cleanup so no stale callbacks run
+    let alive = true;
 
-    /* ── Background init: show the correct bg for starting position ── */
-    // BG mapping: cards 0-1 → bg 2, cards 2-4 → bg 1, cards 5-6 → bg 0
-    const startBgIdx = startOnSteel ? 1 : 2;
+    /* ── Read starting product from URL ── */
+    const startSnapIdx = getStartIndex();
+    const startBgIdx = bgForCard(startSnapIdx);
     bgs.forEach((bg, i) => {
       if (!bg) return;
       gsap.set(bg, {
@@ -60,13 +98,19 @@ export default function DropsPage() {
       panelW = panel!.offsetWidth;
       const pts: number[] = [];
       for (let i = 0; i < cardEls.length; i++) {
-        // Snap position centers each card in the viewport
         const cardLeft = cardEls[i].offsetLeft;
         const cardWidth = cardEls[i].offsetWidth;
         const centerOffset = -(cardLeft - (panelW - cardWidth) / 2);
         pts.push(centerOffset);
       }
       return pts;
+    }
+
+    /** Check if snap points are valid (cards have been laid out) */
+    function snapPointsAreValid(pts: number[]): boolean {
+      if (pts.length < 2) return false;
+      // If all snap points are identical, layout hasn't happened yet
+      return pts[0] !== pts[1];
     }
 
     let snapPoints = calcSnapPoints();
@@ -105,14 +149,7 @@ export default function DropsPage() {
     }
 
     function switchBg(cardIdx: number) {
-      // Map card index to one of the 3 backgrounds
-      // First third → bg 2, middle third → bg 1, last third → bg 0
-      const total = cardEls.length;
-      let bgIdx: number;
-      if (cardIdx < total / 3) bgIdx = 2;
-      else if (cardIdx < (2 * total) / 3) bgIdx = 1;
-      else bgIdx = 0;
-
+      const bgIdx = bgForCard(cardIdx);
       gsap.to(bgs, {
         scale: (i: number) => (i === bgIdx ? 1 : 2),
         opacity: (i: number) => (i === bgIdx ? 1 : 0),
@@ -330,55 +367,66 @@ export default function DropsPage() {
     let wasDragging = false;
     let currentSnapIdx = startSnapIdx;
 
-    const minSnap = snapPoints[snapPoints.length - 1];
-    const maxSnap = snapPoints[0];
+    function makeDraggable() {
+      const pts = calcSnapPoints();
+      snapPoints = pts;
+      const mn = pts[pts.length - 1];
+      const mx = pts[0];
+      return Draggable.create(cards, {
+        type: "x",
+        trigger: panel,
+        edgeResistance: 0.65,
+        bounds: { minX: mn - 40, maxX: mx + 40 },
+        zIndexBoost: false,
+        allowContextMenu: false,
+        minimumMovement: 6,
+        onDragStart() {
+          wasDragging = true;
+        },
+        onDragEnd() {
+          const x = this.x;
+          const nearestIdx = getSnapIndexAfterDrag(x);
+          currentSnapIdx = nearestIdx;
+          gsap.to(cards, {
+            x: snapPoints[nearestIdx],
+            duration: 0.4,
+            ease: "power2.out",
+          });
+          switchBg(nearestIdx);
+          syncUrl(nearestIdx);
+          setTimeout(() => { wasDragging = false; }, 80);
+        },
+      })[0];
+    }
 
-    const [draggable] = Draggable.create(cards, {
-      type: "x",
-      trigger: panel,
-      edgeResistance: 0.65,
-      bounds: { minX: minSnap - 40, maxX: maxSnap + 40 },
-      zIndexBoost: false,
-      allowContextMenu: false,
-      minimumMovement: 6,
-      onDragStart() {
-        wasDragging = true;
-      },
-      onDragEnd() {
-        const x = this.x;
-        const nearestIdx = getSnapIndexAfterDrag(x);
-        currentSnapIdx = nearestIdx;
-        gsap.to(cards, {
-          x: snapPoints[nearestIdx],
-          duration: 0.4,
-          ease: "power2.out",
-        });
-        switchBg(nearestIdx);
-        // Reset drag flag after a tick so the click event that follows is suppressed
-        setTimeout(() => { wasDragging = false; }, 80);
-      },
-    });
+    let draggable = makeDraggable();
 
-    /* ── Deep-link: re-position after layout is fully stable & sync Draggable ── */
-    if (startOnSteel) {
-      // Double-rAF: first frame lets the browser lay out, second frame
-      // guarantees offsetLeft/offsetWidth are final (covers cold loads
-      // where the first frame may still have stale layout values).
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          snapPoints = calcSnapPoints();
-          if (startSnapIdx < snapPoints.length) {
-            gsap.set(cards, { x: snapPoints[startSnapIdx] });
-          }
-          // Sync Draggable's internal position & bounds
-          const newMin = snapPoints[snapPoints.length - 1];
-          const newMax = snapPoints[0];
-          draggable.applyBounds({ minX: newMin - 40, maxX: newMax + 40 });
-          draggable.update();
-          // Clear hash only AFTER everything is positioned
-          window.history.replaceState(null, "", window.location.pathname);
-        });
-      });
+    /* ── Position carousel: retry until layout is valid ──
+       On first render, card elements may not be laid out yet so
+       offsetLeft=0 → snap points are all identical. Retry every 50ms
+       until layout is valid, then rebuild Draggable with correct bounds. */
+    {
+      let attempts = 0;
+      function tryPosition() {
+        if (!alive) return;
+        attempts++;
+        const pts = calcSnapPoints();
+
+        if (!snapPointsAreValid(pts) && attempts < 40) {
+          setTimeout(tryPosition, 50);
+          return;
+        }
+
+        // Layout is confirmed valid — rebuild everything
+        snapPoints = pts;
+        draggable.kill();
+        gsap.set(cards, { x: snapPoints[startSnapIdx] });
+        draggable = makeDraggable();
+        currentSnapIdx = startSnapIdx;
+        switchBg(startSnapIdx);
+        syncUrl(startSnapIdx);
+      }
+      tryPosition();
     }
 
     /* ── Native click handlers on each card (more reliable than Draggable onClick) ── */
@@ -460,6 +508,7 @@ export default function DropsPage() {
         },
       });
       switchBg(currentSnapIdx);
+      syncUrl(currentSnapIdx);
     }
 
     panel.addEventListener("wheel", handleWheel, { passive: false });
@@ -477,6 +526,7 @@ export default function DropsPage() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      alive = false;   // kill any pending retry loops
       draggable.kill();
       window.removeEventListener("resize", handleResize);
       items.forEach((el) => {
